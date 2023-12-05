@@ -3,6 +3,7 @@ import numpy as np
 from server import Server
 from batching_utils import batch_cost
 
+          
 def multiserver_adaptive_batching(A:np.ndarray, Servers:np.ndarray):
     """
     Partition arrivials into batches offline and appoint to appropriate server.
@@ -68,17 +69,20 @@ def multiserver_adaptive_batching(A:np.ndarray, Servers:np.ndarray):
                         best_prev_s = 0 # does not matter
                         new_cost_in_server_s = A[n] + task_time
                 else:
+                    # rewrite the following code in vector form for prev_bs
                     for prev_s in range(0, serv_num):
                         prev_max_bs = min(n-bs, Servers[prev_s].max_bs)
-                        for prev_bs in range(1, prev_max_bs+1):
-                            start_time_now = max(A[n]+tau, CostArr[n-bs][prev_s][prev_bs][s]) # server s
-                            # print(f'{start_time_now}', end=' ')
-                            new_cost = max(CostMaxArr[n-bs][prev_s][prev_bs], start_time_now + task_time)
-                            if new_cost < min_cost_for_best_prev:
-                                min_cost_for_best_prev = new_cost
-                                best_prev_bs = prev_bs
-                                best_prev_s = prev_s
-                                new_cost_in_server_s = start_time_now + task_time
+                        prev_bs = np.arange(1, prev_max_bs+1)
+                        start_time_now = np.maximum(A[n]+tau, CostArr[n-bs][prev_s][prev_bs][:, s]) # server s
+                        new_cost = np.maximum(CostMaxArr[n-bs][prev_s][prev_bs], start_time_now + task_time)
+                        min_cost_now = np.min(new_cost)
+                        if min_cost_now < min_cost_for_best_prev:
+                            idx = np.argmin(new_cost)
+                            min_cost_for_best_prev = min_cost_now
+                            best_prev_bs = prev_bs[idx]
+                            best_prev_s = prev_s
+                            new_cost_in_server_s = start_time_now[idx] + task_time
+
                 CostArr[n][s][bs] = CostArr[n-bs][best_prev_s][best_prev_bs]
                 CostArr[n][s][bs][s] = new_cost_in_server_s
                 CostMaxArr[n][s][bs] = min_cost_for_best_prev
