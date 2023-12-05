@@ -169,12 +169,15 @@ def opportunistic_batching(A, server, threshold):
     
     batch, Batch = 1, [0]
     cost, Cost = 0, [0]
-    idx = 1
+    idx = 0
     while idx < AN-1:
         batch_in_threshold = (A[idx] <= A) & (A <= A[idx] + threshold)
-        batch = np.sum(batch_in_threshold)
-        batch = min(batch, max_bs, AN-1-idx)
-        start = max(A[idx+batch], cost, A[idx]+threshold)
+        batch_in_threshold = np.sum(batch_in_threshold)
+        batch = min(batch_in_threshold, max_bs, AN-1-idx)
+        if batch == batch_in_threshold:
+            start = max(cost, A[idx]+threshold)
+        else:
+            start = max(A[idx+batch], cost)
         idx += batch
         Batch.append(batch)
         cost = start + batch * f_eta(batch) * C
