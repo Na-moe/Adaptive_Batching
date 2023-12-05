@@ -1,7 +1,6 @@
 import numpy as np
 
 from server import Server
-from batching_utils import batch_cost
 
           
 def multiserver_adaptive_batching(A:np.ndarray, Servers:np.ndarray):
