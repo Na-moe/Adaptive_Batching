@@ -4,9 +4,11 @@ from typing import List
 
 
 class Arrival():
-    def __init__(self, arrival_time:float, server_id:int):
+    def __init__(self, arrival_time:float, server_id:int, idx:int):
+        self.ori_time = arrival_time
         self.time = arrival_time
-        self.server_id = server_id
+        self.server_id = int(server_id)
+        self.idx = idx
 
     def __repr__(self) -> str:
         return f'Arrival: time={self.time}, server_id={self.server_id}.'
@@ -15,8 +17,46 @@ class Arrival():
         return f'Arrival: time={self.time}, server_id={self.server_id}.'
     
     def __lt__(self, other):
-        lt = self.time < other.time if self.time != other.time else self.server_id < other.server_id
+        if type(other) is Arrival:
+            lt = self.time < other.time if self.time != other.time else self.server_id < other.server_id
+        else:
+            lt = self.time < other
         return lt
+    
+    def __le__(self, other):
+        if type(other) is Arrival:
+            le = self.time <= other.time if self.time != other.time else self.server_id <= other.server_id
+        else:
+            le = self.time <= other
+        return le
+    
+    def __eq__(self, other):
+        if type(other) is Arrival:
+            eq = self.time == other.time
+        else:
+            eq = self.time == other
+        return eq
+    
+    def __gt__(self, other):
+        if type(other) is Arrival:
+            gt = self.time > other.time if self.time != other.time else self.server_id > other.server_id
+        else:
+            gt = self.time > other
+        return gt
+    
+    def __ge__(self, other):
+        if type(other) is Arrival:
+            ge = self.time >= other.time if self.time != other.time else self.server_id >= other.server_id
+        else:
+            ge = self.time >= other
+        return ge
+    
+    def __add__(self, other):
+        if type(other) is not Arrival:
+            self.time = self.ori_time + other
+        else:
+            raise NotImplementedError(f"Unsupported Type{type(other)} in __add__ of Class Arrival")
+        return self
 
 class Arrivals():
     def __init__(self, arrivals_list:List[Arrival], num_servers:int):
