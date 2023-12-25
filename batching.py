@@ -1,12 +1,12 @@
 import numpy as np
-import math
 
 from math import floor, ceil
 from server import Server
 from batching_utils import batch_cost
+from arrival import Arrival
 
 
-def adaptive_batching(A:np.ndarray, server:Server):
+def adaptive_batching(Arr:np.ndarray, server:Server):
     """
     Partition arrivals into batches offline to minimize the final completion time.
 
@@ -27,6 +27,10 @@ def adaptive_batching(A:np.ndarray, server:Server):
         Cumsum cost of batches.
     """
     # initation
+    if type(Arr[0]) is Arrival:
+        A = np.array([a.time for a in Arr])
+    else:
+        A = Arr
     f_eta = server.f_eta
     max_bs = server.max_bs
     C = server.C
