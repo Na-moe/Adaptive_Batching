@@ -237,6 +237,8 @@ def sot_batching(A, server):
         EdgeBatch: Towards AI-empowered Optimal Task Batching in Intelligent Edge Systems
         https://ieeexplore.ieee.org/document/9052125
     """
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
     f_eta = server.f_eta
     C = server.C
     max_bs = server.max_bs
