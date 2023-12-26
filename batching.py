@@ -6,7 +6,7 @@ from batching_utils import batch_cost
 from arrival import Arrival
 
 
-def adaptive_batching(Arr:np.ndarray, server:Server):
+def adaptive_batching(A:np.ndarray, server:Server):
     """
     Partition arrivals into batches offline to minimize the final completion time.
 
@@ -27,10 +27,9 @@ def adaptive_batching(Arr:np.ndarray, server:Server):
         Cumsum cost of batches.
     """
     # initation
-    if type(Arr[0]) is Arrival:
-        A = np.array([a.time for a in Arr])
-    else:
-        A = Arr
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
+
     f_eta = server.f_eta
     max_bs = server.max_bs
     C = server.C
@@ -74,6 +73,9 @@ def adaptive_batching(Arr:np.ndarray, server:Server):
     return Start, Batch, Cost
 
 def adaptive_batching_with_batch(A, server, Batching_Res):
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
+
     f_eta = server.f_eta
     C = server.C
     
@@ -95,6 +97,9 @@ def adaptive_batching_with_batch(A, server, Batching_Res):
     return Start, Batch, Cost
 
 def window_adaptive_batching(A, server, ws):
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
+
     NA = A.shape[0]
     if NA-1 <= ws+1:
         return adaptive_batching(A, server)
@@ -152,6 +157,9 @@ def static_batching(A:np.ndarray, server:Server, bs:int or np.ndarray):
             Cost.append(cost)
         return np.array(Cost)
     
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
+    
     if type(bs) is int:
         return static_batching_int(A, server, bs)
     elif type(bs) is np.ndarray:
@@ -163,6 +171,9 @@ def opportunistic_batching(A, server, threshold):
     """
     This will batch arrivals within threshold from the first arrvial.
     """
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
+
     f_eta = server.f_eta
     C = server.C
     max_bs = server.max_bs
@@ -197,6 +208,9 @@ def aimd_batching(A, server, add_bs=4, ratio=0.9, latency=100):
         Clipper: A Low-Latency Online Prediction Serving System
         https://arxiv.org/abs/1612.03079
     """
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
+
     f_eta = server.f_eta
     C = server.C
     max_bs = server.max_bs
@@ -296,6 +310,9 @@ def split_shift_batching(A, server, delta):
         latency = f_eta(bs) * bs * C
         alpha, beta = np.polyfit(bs, latency, 1)        
         return alpha, beta
+    
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
     
     alpha, beta = linear_fitting(server)
     num_tasks = A.shape[0] - 1
