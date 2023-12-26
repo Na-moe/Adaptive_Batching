@@ -8,7 +8,7 @@ from arrival import Arrival
 
 def adaptive_batching(A:np.ndarray, server:Server):
     """
-    Partition arrivals into batches offline to minimize the final completion time.
+    Offline adaptively batching arrivals to minimize the completion time.
 
     Parameters
     ----------
@@ -97,6 +97,9 @@ def adaptive_batching_with_batch(A, server, Batching_Res):
     return Start, Batch, Cost
 
 def window_adaptive_batching(A, server, ws):
+    """
+    Adaptively batch arrivals in a sliding window.
+    """
     if type(A[0]) is Arrival:
         A = np.array([a.time for a in A])
 
@@ -135,6 +138,9 @@ def window_adaptive_batching(A, server, ws):
     return Start, Batch, Cost
 
 def static_batching(A:np.ndarray, server:Server, bs:int or np.ndarray):
+    """
+    Batch arrivals with a fixed batch size.
+    """
     def static_batching_int(A, server, bs):
         N = A.shape[0] - 1
         nb = N // bs if N % bs == 0 else N // bs + 1 # num_batch
@@ -169,7 +175,7 @@ def static_batching(A:np.ndarray, server:Server, bs:int or np.ndarray):
 
 def opportunistic_batching(A, server, threshold):
     """
-    This will batch arrivals within threshold from the first arrvial.
+    Batch arrivals within the threshold from the first arrvial.
     """
     if type(A[0]) is Arrival:
         A = np.array([a.time for a in A])
@@ -301,6 +307,12 @@ def sot_batching(A, server):
     return np.array(Batch), np.array(Cost)#, Weights
 
 def split_shift_batching(A, server, delta):
+    """
+    Split-Shift Batching.
+    Proposed in
+        CrowdVision: A Computing Platform for Video Crowdprocessing Using Deep Learning
+        https://ieeexplore.ieee.org/document/8428426
+    """
     def linear_fitting(server):
         f_eta = server.f_eta
         C = server.C
@@ -317,7 +329,7 @@ def split_shift_batching(A, server, delta):
     alpha, beta = linear_fitting(server)
     num_tasks = A.shape[0] - 1
     gamma_ = A[-1] / num_tasks
-    gamma = delta * gamma_ / (delta - gamma_)
+    gamma = delta * gamma_ / (delta - gamma_) # delta is the arrival interval
 
     num_local_s = floor((delta * num_tasks - alpha) / (beta + delta))
 
