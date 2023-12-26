@@ -206,6 +206,17 @@ def opportunistic_batching(A, server, threshold):
         
     return np.array(Batch), np.array(Cost)
 
+def posterior_static_batching(A, server):
+    """
+    Batch arrivals with the optimal fixed batch size.
+    """
+    if type(A[0]) is Arrival:
+        A = np.array([a.time for a in A])
+
+    bs_array = np.arange(1, server.max_bs+1)
+    Cost = static_batching(A, server, bs_array)
+    bs = bs_array[np.argmin(Cost)]
+    return static_batching(A, server, bs)    
 
 def aimd_batching(A, server, add_bs=4, ratio=0.9, latency=100):
     """
