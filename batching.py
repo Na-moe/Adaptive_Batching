@@ -136,7 +136,7 @@ def static_batching(A:np.ndarray, server:Server, bs:int or np.ndarray):
         Batch = np.ones(nb+1, dtype=np.int32) * bs
         Batch[0] = 0
         Batch[-1] = bs if N % bs == 0 else N % bs
-        return batch_cost(A, server, Batch)
+        return Batch, batch_cost(A, server, Batch)
     
     def static_batching_array(A, server, bs):
         N = A.shape[0]-1
@@ -187,7 +187,7 @@ def opportunistic_batching(A, server, threshold):
         cost = start + batch * f_eta(batch) * C
         Cost.append(cost)
         
-    return np.array(Cost)
+    return np.array(Batch), np.array(Cost)
 
 
 def aimd_batching(A, server, add_bs=4, ratio=0.9, latency=100):
