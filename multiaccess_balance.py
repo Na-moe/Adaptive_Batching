@@ -1,7 +1,7 @@
 import numpy as np
     
 from arrival import Arrival, Arrivals
-from batching import adaptive_batching
+from batching import adaptive_batching, sot_batching
 from batching_utils import batch_cost_arrival
 
 
@@ -176,7 +176,7 @@ def multiaccess_task_balance(Arr_list, Servers, Transmission):
     print(f"iter_steps:{iter_steps}")
     return Solutions, Assigned_server, Arr_list_now
 
-def OCAI(Arr_list, Servers, Transmission):
+def ocai(Arr_list, Servers, Transmission):
     time_slot = 100
 
     def resouce_listing(Servers):
@@ -231,4 +231,11 @@ def OCAI(Arr_list, Servers, Transmission):
         idx += 1
     return Assigned_server
 
-        
+def edge_batch(Arr_list, Servers, Transmission):
+    Assigned_server = ocai(Arr_list, Servers, Transmission)
+    Batch = []
+    for i in range(len(Servers)):
+        Arr = np.concatenate([Arr_list[j][As==i] + Transmission[j][i] for j, As in enumerate(Assigned_server)])
+        Arr = np.sort(Arr)
+        Batch.append(sot_batching(Arr, Servers[i]))
+    return Batch
